@@ -1,3 +1,4 @@
+// src/App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +10,10 @@ import Dashboard from "@/pages/Dashboard";
 import Leads from "@/pages/Leads";
 import Automations from "@/pages/Automations";
 import SettingsPage from "@/pages/Settings";
+import Analytics from "@/pages/Analytics";
+import WhatsAppIntegration from "@/pages/WhatsAppIntegration";
+import TeamManagement from "@/pages/TeamManagement";
+import NotificationsCenter from "@/pages/NotificationsCenter";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,11 +25,20 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
+
+          {/* Protected routes with AppLayout */}
           <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
           <Route path="/leads" element={<AppLayout><Leads /></AppLayout>} />
           <Route path="/automations" element={<AppLayout><Automations /></AppLayout>} />
+          <Route path="/analytics" element={<AppLayout><Analytics /></AppLayout>} />
+          <Route path="/whatsapp" element={<AppLayout><WhatsAppIntegration /></AppLayout>} />
+          <Route path="/team" element={<AppLayout><TeamManagement /></AppLayout>} />
+          <Route path="/notifications" element={<AppLayout><NotificationsCenter /></AppLayout>} />
           <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+
+          {/* 404 route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

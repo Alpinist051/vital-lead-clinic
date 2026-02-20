@@ -1,3 +1,4 @@
+// src/components/AppLayout.tsx
 import { useState } from "react";
 import { NavLink, useLocation, Link } from "react-router-dom";
 import {
@@ -11,6 +12,10 @@ import {
   Phone,
   Home,
   Bell,
+  BarChart3,
+  Globe,
+  UserCog,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,12 +23,20 @@ const navItems = [
   { to: "/dashboard", icon: LayoutDashboard, label: "לוח בקרה" },
   { to: "/leads", icon: Users, label: "לידים" },
   { to: "/automations", icon: Zap, label: "אוטומציות" },
+  { to: "/analytics", icon: BarChart3, label: "אנליטיקס" },
+  { to: "/whatsapp", icon: Globe, label: "וואטסאפ" },
+  { to: "/team", icon: UserCog, label: "ניהול צוות" },
+  { to: "/notifications", icon: AlertCircle, label: "התראות" },
   { to: "/settings", icon: Settings, label: "הגדרות" },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+
+  // Mock data for badges
+  const notificationCount = 3;
+  const leadsNeedingFollowup = 5;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background" dir="rtl">
@@ -38,7 +51,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 right-0 z-50 w-64 bg-card border-l border-border transition-transform duration-300 lg:static lg:translate-x-0",
+          "fixed inset-y-0 right-0 z-50 w-72 bg-card border-l border-border transition-transform duration-300 lg:static lg:translate-x-0",
           sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         )}
       >
@@ -61,7 +74,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Nav */}
-          <nav className="flex-1 space-y-1 p-3">
+          <nav className="flex-1 space-y-1 overflow-y-auto p-3">
             <Link
               to="/"
               className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-muted transition-all mb-2"
@@ -71,6 +84,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               דף הבית
             </Link>
             <div className="h-px bg-border my-2" />
+
             {navItems.map((item) => {
               const isActive = location.pathname === item.to;
               return (
@@ -79,18 +93,35 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   to={item.to}
                   onClick={() => setSidebarOpen(false)}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200",
+                    "flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 group relative",
                     isActive
                       ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
                       : "text-sidebar-foreground hover:bg-muted"
                   )}
                 >
                   <item.icon className={cn("h-[18px] w-[18px]", isActive && "text-primary")} />
-                  {item.label}
-                  {item.to === "/leads" && (
-                    <span className="mr-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary/10 px-1.5 text-[10px] font-bold text-primary">
-                      6
+                  <span className="flex-1">{item.label}</span>
+
+                  {/* Badges for specific items */}
+                  {item.to === "/leads" && leadsNeedingFollowup > 0 && (
+                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-warning/10 px-1.5 text-[10px] font-bold text-warning">
+                      {leadsNeedingFollowup}
                     </span>
+                  )}
+
+                  {item.to === "/notifications" && notificationCount > 0 && (
+                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive/10 px-1.5 text-[10px] font-bold text-destructive">
+                      {notificationCount}
+                    </span>
+                  )}
+
+                  {item.to === "/whatsapp" && (
+                    <span className="h-2 w-2 rounded-full bg-warning animate-pulse-soft" />
+                  )}
+
+                  {/* Active indicator */}
+                  {isActive && (
+                    <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
                   )}
                 </NavLink>
               );
@@ -109,6 +140,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </div>
               <span className="h-2.5 w-2.5 rounded-full bg-warning animate-pulse-soft" />
             </div>
+
+            {/* Quick stats */}
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="rounded-xl bg-muted/30 p-2 text-center">
+                <p className="text-xs font-bold text-foreground">78%</p>
+                <p className="text-[9px] text-muted-foreground">החזרת לקוחות</p>
+              </div>
+              <div className="rounded-xl bg-muted/30 p-2 text-center">
+                <p className="text-xs font-bold text-foreground">₪45K</p>
+                <p className="text-[9px] text-muted-foreground">הכנסות</p>
+              </div>
+            </div>
           </div>
         </div>
       </aside>
@@ -123,20 +166,49 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           >
             <Menu className="h-6 w-6" />
           </button>
+
           <div className="flex-1">
             <h2 className="text-sm font-semibold text-foreground lg:hidden">מערכת ניהול לידים</h2>
+            {/* Breadcrumb - optional */}
+            <div className="hidden lg:flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground">מערכת ניהול לידים</span>
+              <span className="text-muted-foreground">/</span>
+              <span className="font-semibold text-foreground">
+                {navItems.find(item => item.to === location.pathname)?.label || "דף הבית"}
+              </span>
+            </div>
           </div>
-          <button className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground hover:bg-muted transition-colors">
+
+          {/* Search - optional */}
+          <div className="hidden md:block relative">
+            <input
+              type="text"
+              placeholder="חיפוש מהיר..."
+              className="w-64 h-9 rounded-xl border border-border bg-card px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+
+          {/* Notifications button */}
+          <Link
+            to="/notifications"
+            className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground hover:bg-muted transition-colors"
+          >
             <Bell className="h-4 w-4" />
-            <span className="absolute -top-1 -left-1 h-3 w-3 rounded-full bg-destructive border-2 border-card" />
-          </button>
+            {notificationCount > 0 && (
+              <span className="absolute -top-1 -left-1 h-4 w-4 rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground flex items-center justify-center border-2 border-card">
+                {notificationCount}
+              </span>
+            )}
+          </Link>
+
+          {/* User menu */}
           <div className="flex items-center gap-2.5">
             <div className="h-9 w-9 rounded-xl gradient-primary flex items-center justify-center shadow-sm">
               <span className="text-xs font-bold text-primary-foreground">מ</span>
             </div>
             <div className="hidden sm:block">
-              <p className="text-sm font-semibold text-foreground leading-tight">מנהל</p>
-              <p className="text-[11px] text-muted-foreground leading-tight">מרפאת שיניים</p>
+              <p className="text-sm font-semibold text-foreground leading-tight">מנהל מערכת</p>
+              <p className="text-[11px] text-muted-foreground leading-tight">מרפאת שיניים הרצליה</p>
             </div>
           </div>
         </header>
