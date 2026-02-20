@@ -37,36 +37,38 @@ export default function KPICard({
   return (
     <div
       className={cn(
-        "rounded-xl border p-5 shadow-card transition-all duration-300 hover:shadow-card-hover animate-fade-in",
+        "rounded-xl border p-5 shadow-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-0.5 animate-fade-in",
         variantStyles[variant]
       )}
     >
       <div className="flex items-start justify-between">
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <p className="text-2xl font-bold text-card-foreground">{value}</p>
-          {subtitle && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
-          )}
-          {trend && (
-            <p
-              className={cn(
-                "text-xs font-medium",
-                trend.positive ? "text-success" : "text-destructive"
-              )}
-            >
-              {trend.positive ? "↑" : "↓"} {Math.abs(trend.value)}% from last month
-            </p>
-          )}
-        </div>
         <div
           className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-lg",
+            "flex h-11 w-11 items-center justify-center rounded-xl",
             iconVariantStyles[variant]
           )}
         >
           <Icon className="h-5 w-5" />
         </div>
+        <div className="text-left space-y-1">
+          <p className="text-xs font-medium text-muted-foreground">{title}</p>
+          <p className="text-2xl font-extrabold text-card-foreground">{value}</p>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center justify-between">
+        {subtitle && (
+          <p className="text-[11px] text-muted-foreground">{subtitle}</p>
+        )}
+        {trend && (
+          <p
+            className={cn(
+              "text-[11px] font-semibold flex items-center gap-1",
+              trend.positive ? "text-success" : "text-destructive"
+            )}
+          >
+            {trend.positive ? "↑" : "↓"} {Math.abs(trend.value)}% מהחודש שעבר
+          </p>
+        )}
       </div>
     </div>
   );
