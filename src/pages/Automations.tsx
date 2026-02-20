@@ -1,17 +1,31 @@
-import { Zap, Clock, MessageSquare, ToggleLeft, ToggleRight, Plus, Info } from "lucide-react";
+import { Zap, Clock, MessageSquare, ToggleLeft, ToggleRight, Trash2, Info } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import StatusBadge from "@/components/StatusBadge";
-import { sampleAutomationRules } from "@/data/sampleData";
+import AutomationRuleDialog from "@/components/AutomationRuleDialog";
+import { sampleAutomationRules, type AutomationRule } from "@/data/sampleData";
 import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { toast } from "@/hooks/use-toast";
 
 export default function Automations() {
-  const [rules, setRules] = useState(sampleAutomationRules);
+  const [rules, setRules] = useState<AutomationRule[]>(sampleAutomationRules);
 
   const toggleRule = (id: string) => {
-    setRules((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, active: !r.active } : r))
-    );
+    setRules((prev) => prev.map((r) => (r.id === id ? { ...r, active: !r.active } : r)));
+  };
+
+  const saveRule = (rule: AutomationRule) => {
+    setRules((prev) => {
+      const exists = prev.find((r) => r.id === rule.id);
+      if (exists) return prev.map((r) => (r.id === rule.id ? rule : r));
+      return [...prev, rule];
+    });
+  };
+
+  const deleteRule = (id: string) => {
+    setRules((prev) => prev.filter((r) => r.id !== id));
+    toast({ title: "חוק נמחק", description: "החוק הוסר בהצלחה" });
   };
 
   const activeCount = rules.filter((r) => r.active).length;
@@ -24,10 +38,7 @@ export default function Automations() {
           <h1 className="text-2xl font-extrabold text-foreground">אוטומציות</h1>
           <p className="text-sm text-muted-foreground mt-0.5">חוקי מעקב אוטומטיים בוואטסאפ ללידים שלך</p>
         </div>
-        <Button className="gradient-primary border-0 text-primary-foreground gap-2 rounded-xl shadow-lg hover:opacity-90">
-          <Plus className="h-4 w-4" />
-          הוסף חוק
-        </Button>
+        <AutomationRuleDialog onSave={saveRule} />
       </div>
 
       {/* Status banner */}
@@ -70,12 +81,10 @@ export default function Automations() {
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3 lg:gap-4 flex-1 min-w-0">
-                <div
-                  className={cn(
-                    "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
-                    rule.active ? "gradient-primary shadow-sm" : "bg-muted"
-                  )}
-                >
+                <div className={cn(
+                  "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+                  rule.active ? "gradient-primary shadow-sm" : "bg-muted"
+                )}>
                   <Zap className={cn("h-4 w-4", rule.active ? "text-primary-foreground" : "text-muted-foreground")} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -97,21 +106,51 @@ export default function Automations() {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => toggleRule(rule.id)}
-                className="shrink-0 mt-1 hover:scale-110 transition-transform"
-                title={rule.active ? "כבה" : "הפעל"}
-              >
-                {rule.active ? (
-                  <ToggleRight className="h-8 w-8 text-primary" />
-                ) : (
-                  <ToggleLeft className="h-8 w-8 text-muted-foreground" />
-                )}
-              </button>
+              <div className="flex flex-col items-center gap-2 shrink-0">
+                <button
+                  onClick={() => toggleRule(rule.id)}
+                  className="hover:scale-110 transition-transform"
+                  title={rule.active ? "כבה" : "הפעל"}
+                >
+                  {rule.active ? (
+                    <ToggleRight className="h-8 w-8 text-primary" />
+                  ) : (
+                    <ToggleLeft className="h-8 w-8 text-muted-foreground" />
+                  )}
+                </button>
+                <div className="flex gap-1">
+                  <AutomationRuleDialog rule={rule} onSave={saveRule} />
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="sm" className="rounded-xl text-destructive hover:text-destructive h-8 w-8 p-0">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent dir="rtl">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>מחיקת חוק</AlertDialogTitle>
+                        <AlertDialogDescription>האם אתה בטוח שברצונך למחוק את "{rule.name}"?</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter className="flex-row-reverse gap-2">
+                        <AlertDialogCancel className="rounded-xl">ביטול</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => deleteRule(rule.id)} className="bg-destructive text-destructive-foreground rounded-xl">מחק</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
             </div>
           </div>
         ))}
       </div>
+
+      {rules.length === 0 && (
+        <div className="rounded-2xl border border-border bg-card p-12 text-center shadow-card">
+          <Zap className="mx-auto h-12 w-12 text-muted-foreground/50" />
+          <p className="mt-4 font-bold text-foreground">אין חוקים</p>
+          <p className="mt-1 text-sm text-muted-foreground">צור חוק אוטומציה ראשון</p>
+        </div>
+      )}
 
       {/* Info */}
       <div className="flex items-start gap-3 rounded-2xl border border-info/20 bg-info/5 p-4 text-sm">
