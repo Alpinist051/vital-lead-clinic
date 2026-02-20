@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { Search, Plus, MessageSquare, Phone, ChevronLeft, Users } from "lucide-react";
+import { Search, MessageSquare, Phone, ChevronLeft, Users, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import StatusBadge from "@/components/StatusBadge";
 import LeadDetail from "@/components/LeadDetail";
-import { sampleLeads, type Lead, type LeadStatus } from "@/data/sampleData";
-import { Button } from "@/components/ui/button";
+import AddLeadDialog from "@/components/AddLeadDialog";
+import { useLeads } from "@/hooks/useLeads";
+import type { Lead, LeadStatus } from "@/data/sampleData";
 import { Input } from "@/components/ui/input";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 
 const statusFilters: { label: string; value: LeadStatus | "all" }[] = [
   { label: "הכל", value: "all" },
@@ -18,9 +22,10 @@ const statusFilters: { label: string; value: LeadStatus | "all" }[] = [
 export default function Leads() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<LeadStatus | "all">("all");
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const { leads, addLead, updateLead, deleteLead, addMessage } = useLeads();
 
-  const filteredLeads = sampleLeads.filter((lead) => {
+  const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
       lead.name.toLowerCase().includes(search.toLowerCase()) ||
       lead.service.toLowerCase().includes(search.toLowerCase());
@@ -28,8 +33,22 @@ export default function Leads() {
     return matchesSearch && matchesFilter;
   });
 
+  const selectedLead = leads.find((l) => l.id === selectedLeadId) || null;
+
   if (selectedLead) {
-    return <LeadDetail lead={selectedLead} onBack={() => setSelectedLead(null)} />;
+    return (
+      <LeadDetail
+        lead={selectedLead}
+        onBack={() => setSelectedLeadId(null)}
+        onUpdate={updateLead}
+        onAddMessage={addMessage}
+        onDelete={(id) => {
+          deleteLead(id);
+          setSelectedLeadId(null);
+          toast({ title: "ליד נמחק", description: `${selectedLead.name} הוסר מהרשימה` });
+        }}
+      />
+    );
   }
 
   return (
@@ -40,22 +59,14 @@ export default function Leads() {
           <h1 className="text-2xl font-extrabold text-foreground">לידים</h1>
           <p className="text-sm text-muted-foreground mt-0.5">ניהול ומעקב אחרי הלידים של המרפאה</p>
         </div>
-        <Button className="gradient-primary border-0 text-primary-foreground gap-2 rounded-xl shadow-lg hover:opacity-90 transition-opacity">
-          <Plus className="h-4 w-4" />
-          הוסף ליד
-        </Button>
+        <AddLeadDialog onAdd={addLead} />
       </div>
 
       {/* Search & Filters */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="חפש לידים..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pr-10 rounded-xl"
-          />
+          <Input placeholder="חפש לידים..." value={search} onChange={(e) => setSearch(e.target.value)} className="pr-10 rounded-xl" />
         </div>
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
           {statusFilters.map((f) => (
@@ -75,7 +86,6 @@ export default function Leads() {
         </div>
       </div>
 
-      {/* Lead count */}
       <p className="text-xs text-muted-foreground">{filteredLeads.length} לידים נמצאו</p>
 
       {/* Mobile cards */}
@@ -83,7 +93,7 @@ export default function Leads() {
         {filteredLeads.map((lead, i) => (
           <button
             key={lead.id}
-            onClick={() => setSelectedLead(lead)}
+            onClick={() => setSelectedLeadId(lead.id)}
             className="w-full rounded-2xl border border-border bg-card p-4 text-right shadow-card transition-all hover:shadow-card-hover active:scale-[0.99] animate-fade-in"
             style={{ animationDelay: `${i * 50}ms` }}
           >
@@ -101,12 +111,8 @@ export default function Leads() {
             </div>
             <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Phone className="h-3 w-3" /> {lead.phone}
-                </span>
-                <span className="flex items-center gap-1">
-                  <MessageSquare className="h-3 w-3" /> {lead.messages.length} הודעות
-                </span>
+                <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> {lead.phone}</span>
+                <span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" /> {lead.messages.length} הודעות</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold text-foreground">₪{lead.value.toLocaleString()}</span>
@@ -137,7 +143,7 @@ export default function Leads() {
             {filteredLeads.map((lead, i) => (
               <tr
                 key={lead.id}
-                onClick={() => setSelectedLead(lead)}
+                onClick={() => setSelectedLeadId(lead.id)}
                 className="border-b border-border last:border-0 hover:bg-muted/40 cursor-pointer transition-colors animate-fade-in"
                 style={{ animationDelay: `${i * 40}ms` }}
               >
