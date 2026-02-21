@@ -16,19 +16,22 @@ import TeamManagement from "@/pages/TeamManagement";
 import NotificationsCenter from "@/pages/NotificationsCenter";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
+
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+    <BrowserRouter>
+      <TooltipProvider>
         <Routes>
-          {/* Public routes */}
           <Route path="/" element={<LandingPage />} />
-
-          {/* Protected routes with AppLayout */}
           <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
           <Route path="/leads" element={<AppLayout><Leads /></AppLayout>} />
           <Route path="/automations" element={<AppLayout><Automations /></AppLayout>} />
@@ -37,12 +40,12 @@ const App = () => (
           <Route path="/team" element={<AppLayout><TeamManagement /></AppLayout>} />
           <Route path="/notifications" element={<AppLayout><NotificationsCenter /></AppLayout>} />
           <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
-
-          {/* 404 route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+        <Toaster />
+        <Sonner />
+      </TooltipProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 
