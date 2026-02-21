@@ -221,7 +221,7 @@ export default function LandingPage() {
       <section className="relative overflow-hidden py-16 sm:py-20 md:py-24" ref={el => sectionRefs.current['hero'] = el}>
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5" />
 
-        <div className={`relative mx-auto max-w-5xl px-4 text-center ${fadeInUpClass('hero')}`}>
+        <div className={`relative mx-auto max-w-6xl px-4 text-center ${fadeInUpClass('hero')}`}>
           <Badge variant="outline" className="mb-4 px-4 py-2 text-sm bg-primary/10 text-primary border-primary/20">
             <Sparkles className="h-4 w-4 ml-2" />
             מערכת אוטומטית להחזרת לקוחות
@@ -293,7 +293,7 @@ export default function LandingPage() {
 
       {/* Stats Section */}
       <section className="bg-muted/30 py-16">
-        <div className="mx-auto max-w-5xl px-4">
+        <div className="mx-auto max-w-6xl px-4">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="border-0 bg-transparent shadow-none text-center">
               <CardContent className="pt-6">
@@ -325,7 +325,7 @@ export default function LandingPage() {
 
       {/* How it Works */}
       <section id="how" className="py-16" ref={el => sectionRefs.current['how'] = el}>
-        <div className={`mx-auto max-w-5xl px-4 ${fadeInUpClass('how')}`}>
+        <div className={`mx-auto max-w-6xl px-4 ${fadeInUpClass('how')}`}>
           <div className="text-center mb-12">
             <Badge variant="outline" className="mb-4 px-4 py-2 bg-primary/10">
               תהליך פשוט
@@ -482,7 +482,7 @@ export default function LandingPage() {
                     <p className="text-xs opacity-80">מזוהה למעקב אוטומטי</p>
                   </div>
                 </div>
-                <div className="bg-[#ECE5DD] p-3 h-[300px] overflow-y-auto">
+                <div className="bg-[#ECE5DD] p-3 h-[760px] overflow-y-auto">
                   <div className="space-y-2">
                     {chatMessages.old.map((msg, i) => (
                       <div
@@ -534,7 +534,7 @@ export default function LandingPage() {
                     <p className="text-xs opacity-80">מסווג אוטומטית כחם</p>
                   </div>
                 </div>
-                <div className="bg-[#ECE5DD] p-3 h-[300px] overflow-y-auto">
+                <div className="bg-[#ECE5DD] p-3 h-[760px] overflow-y-auto">
                   <div className="space-y-2">
                     {chatMessages.new.map((msg, i) => (
                       <div
@@ -581,7 +581,7 @@ export default function LandingPage() {
 
       {/* Results Section */}
       <section id="results" className="py-16" ref={el => sectionRefs.current['results'] = el}>
-        <div className={`mx-auto max-w-5xl px-4 ${fadeInUpClass('results')}`}>
+        <div className={`mx-auto max-w-6xl px-4 ${fadeInUpClass('results')}`}>
           <div className="text-center mb-12">
             <Badge variant="outline" className="mb-4 px-4 py-2 bg-success/10 text-success">
               <Target className="h-4 w-4 ml-2" />
@@ -639,7 +639,7 @@ export default function LandingPage() {
       {/* Testimonials */}
 // Testimonials section - fixed version
       <section className="py-16 bg-muted/30">
-        <div className="mx-auto max-w-5xl px-4">
+        <div className="mx-auto max-w-6xl px-4">
           <h2 className="text-3xl font-bold text-center mb-12">מה הלקוחות שלנו אומרים</h2>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -712,7 +712,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-border bg-card py-8">
-        <div className="mx-auto max-w-5xl px-4">
+        <div className="mx-auto max-w-6xl px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
