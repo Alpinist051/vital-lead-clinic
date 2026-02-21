@@ -1,6 +1,6 @@
-// src/components/AppLayout.tsx
+// src/components/AppLayout.tsx (updated with auth)
 import { useState } from "react";
-import { NavLink, useLocation, Link } from "react-router-dom";
+import { NavLink, useLocation, Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -16,8 +16,20 @@ import {
   Globe,
   UserCog,
   AlertCircle,
+  LogOut,
+  User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navItems = [
   { to: "/dashboard", icon: LayoutDashboard, label: "לוח בקרה" },
@@ -33,10 +45,22 @@ const navItems = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   // Mock data for badges
   const notificationCount = 3;
   const leadsNeedingFollowup = 5;
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const getUserInitials = () => {
+    if (!user?.name) return 'משתמש';
+    return user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-background" dir="rtl">
@@ -58,7 +82,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="flex h-full flex-col">
           {/* Logo */}
           <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary shadow-lg">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-primary to-primary/70 shadow-lg">
               <Phone className="h-5 w-5 text-primary-foreground" />
             </div>
             <div className="flex-1 min-w-0">
@@ -71,6 +95,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <X className="h-5 w-5" />
             </button>
+          </div>
+
+          {/* User Info - Mobile */}
+          <div className="p-3 border-b border-border lg:hidden">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarFallback className="bg-primary/10 text-primary">
+                  {getUserInitials()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-foreground truncate">{user?.name || 'משתמש'}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              </div>
+            </div>
           </div>
 
           {/* Nav */}
@@ -169,7 +208,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
           <div className="flex-1">
             <h2 className="text-sm font-semibold text-foreground lg:hidden">מערכת ניהול לידים</h2>
-            {/* Breadcrumb - optional */}
+            {/* Breadcrumb */}
             <div className="hidden lg:flex items-center gap-2 text-sm">
               <span className="text-muted-foreground">מערכת ניהול לידים</span>
               <span className="text-muted-foreground">/</span>
@@ -179,7 +218,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          {/* Search - optional */}
+          {/* Search */}
           <div className="hidden md:block relative">
             <input
               type="text"
@@ -202,15 +241,45 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* User menu */}
-          <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl gradient-primary flex items-center justify-center shadow-sm">
-              <span className="text-xs font-bold text-primary-foreground">מ</span>
-            </div>
-            <div className="hidden sm:block">
-              <p className="text-sm font-semibold text-foreground leading-tight">מנהל מערכת</p>
-              <p className="text-[11px] text-muted-foreground leading-tight">מרפאת שיניים הרצליה</p>
-            </div>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback className="bg-gradient-to-r from-primary to-primary/70 text-primary-foreground">
+                    {getUserInitials()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden sm:block text-right">
+                  <p className="text-sm font-semibold text-foreground leading-tight">
+                    {user?.name || 'משתמש'}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground leading-tight">
+                    {user?.clinicName || 'מרפאת שיניים'}
+                  </p>
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 rounded-xl">
+              <DropdownMenuLabel>החשבון שלי</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/profile')}>
+                <User className="h-4 w-4 ml-2" />
+                פרופיל
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/settings')}>
+                <Settings className="h-4 w-4 ml-2" />
+                הגדרות
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="cursor-pointer text-destructive focus:text-destructive"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-4 w-4 ml-2" />
+                התנתק
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
 
         {/* Page content */}
