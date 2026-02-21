@@ -15,6 +15,7 @@ import WhatsAppIntegration from "@/pages/WhatsAppIntegration";
 import TeamManagement from "@/pages/TeamManagement";
 import NotificationsCenter from "@/pages/NotificationsCenter";
 import NotFound from "./pages/NotFound";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,21 +26,20 @@ const queryClient = new QueryClient({
   },
 });
 
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <TooltipProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
-          <Route path="/leads" element={<AppLayout><Leads /></AppLayout>} />
-          <Route path="/automations" element={<AppLayout><Automations /></AppLayout>} />
-          <Route path="/analytics" element={<AppLayout><Analytics /></AppLayout>} />
-          <Route path="/whatsapp" element={<AppLayout><WhatsAppIntegration /></AppLayout>} />
-          <Route path="/team" element={<AppLayout><TeamManagement /></AppLayout>} />
-          <Route path="/notifications" element={<AppLayout><NotificationsCenter /></AppLayout>} />
-          <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+          <Route path="/dashboard" element={<AppLayout>    <ErrorBoundary><Dashboard /></ErrorBoundary></AppLayout>} />
+          <Route path="/leads" element={<AppLayout>    <ErrorBoundary><Leads /></ErrorBoundary></AppLayout>} />
+          <Route path="/automations" element={<AppLayout>    <ErrorBoundary><Automations /></ErrorBoundary></AppLayout>} />
+          <Route path="/analytics" element={<AppLayout>    <ErrorBoundary><Analytics /></ErrorBoundary></AppLayout>} />
+          <Route path="/whatsapp" element={<AppLayout>    <ErrorBoundary><WhatsAppIntegration /></ErrorBoundary></AppLayout>} />
+          <Route path="/team" element={<AppLayout>    <ErrorBoundary><TeamManagement /></ErrorBoundary></AppLayout>} />
+          <Route path="/notifications" element={<AppLayout>    <ErrorBoundary><NotificationsCenter /></ErrorBoundary></AppLayout>} />
+          <Route path="/settings" element={<AppLayout>    <ErrorBoundary><SettingsPage /></ErrorBoundary></AppLayout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />

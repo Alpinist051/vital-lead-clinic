@@ -1,5 +1,5 @@
 import { ArrowRight, Phone, Mail, MessageSquare, Send, Calendar, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import StatusBadge from "@/components/StatusBadge";
 import EditLeadDialog from "@/components/EditLeadDialog";
@@ -34,6 +34,13 @@ export default function LeadDetail({ lead, onBack, onUpdate, onAddMessage, onDel
       handleSend();
     }
   };
+
+  useEffect(() => {
+    return () => {
+      // Cleanup any event listeners or timeouts
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
 
   return (
     <div className="space-y-5 lg:space-y-6 animate-slide-in">
